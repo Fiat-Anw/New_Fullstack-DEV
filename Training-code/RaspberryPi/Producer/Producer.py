@@ -11,7 +11,7 @@ import paho.mqtt.client as mqtt
 import json
 
 # let's connect to the MQTT broker
-MQTT_BROKER_URL    = "raspberrypi0.local"
+MQTT_BROKER_URL    = "raspberrypi2.local"
 MQTT_PUBLISH_TOPIC = "@msg/data"
 
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
