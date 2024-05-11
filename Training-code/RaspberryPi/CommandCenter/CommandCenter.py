@@ -1,54 +1,61 @@
+"""
+CommandCenter File
+read from influx and publish to mqtt broker
+"""
+
 # Importing relevant modules
 import os
 from dotenv import load_dotenv
-from influxdb_client import InfluxDBClient
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import ASYNCHRONOUS
 import paho.mqtt.client as mqtt
+import time
 import json
+import requests
 
 # Load environment variables from ".env"
 load_dotenv()
 
 # InfluxDB config
-INFLUXDB_URL = os.environ.get('INFLUXDB_URL')
-INFLUXDB_TOKEN = os.environ.get('INFLUXDB_TOKEN')
-INFLUXDB_ORG = os.environ.get('INFLUXDB_ORG')
-BUCKET = os.environ.get('INFLUXDB_BUCKET')
+BUCKET = os.environ.get('INFLUXDB_BUCKET') #  bucket is a named location where time series data is stored.
+print("connecting to",os.environ.get('INFLUXDB_URL'))
+client = InfluxDBClient(
 
+    url=str(os.environ.get('INFLUXDB_URL')),
+    token=str(os.environ.get('INFLUXDB_TOKEN')),
+    org=os.environ.get('INFLUXDB_ORG')
+)
+write_api = client.write_api()
+query_api = client.query_api()
+ 
 # MQTT broker config
 MQTT_BROKER_URL = os.environ.get('MQTT_URL')
-MQTT_PUBLISH_TOPIC = "@msg/data"
+MQTT_SUBSCRIBE_TOPIC = "@msg/influx2broker"
+print("connecting to MQTT Broker", MQTT_BROKER_URL)
+mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+mqttc.connect(MQTT_BROKER_URL,1883)
 
-# Connect to InfluxDB
-client = InfluxDBClient(url=INFLUXDB_URL, token=INFLUXDB_TOKEN, org=INFLUXDB_ORG)
-
-# Connect to MQTT broker
-mqttc = mqtt.Client()
-mqttc.connect(MQTT_BROKER_URL, 1883)
-
-# Subscribe to InfluxDB for data
-query = f'from(bucket: "{BUCKET}") |> range(start: -1m)'
-tables = client.query_api().query(query, org=INFLUXDB_ORG)
-
-def on_connect(client, userdata, flags, rc):
+def on_connect(client, userdata, flags, rc, properties):
     """ The callback for when the client connects to the broker."""
-    print("Connected to MQTT Broker with result code "+str(rc))
+    print("Connected with result code "+str(rc))
 
-def on_message(client, userdata, msg):
-    """ The callback for when a PUBLISH message is received from the server."""
-    print(msg.topic+" "+str(msg.payload))
-
-    # Extract data from InfluxDB query result
-    data = []
+# read from influx and publish to mqtt broker
+def read_from_influxdb():
+    tables = query_api.query('from(bucket:BUCKET) |> range(start: -10m)')
     for table in tables:
-        for row in table.records:
-            data.append(row.values)
-    
-    # Publish data to MQTT broker
-    mqttc.publish(MQTT_PUBLISH_TOPIC, json.dumps(data))
+        print(table)
+        for record in table.records:
+            print(record.values)
+            msg = f"messages: {record.values}"
+            result = mqttc.publish(MQTT_SUBSCRIBE_TOPIC, msg)
+            status = result[0]
+            if status == 0:
+                print(f"Send `{msg}` to topic `{MQTT_SUBSCRIBE_TOPIC}`")
+            else:
+                print(f"Failed to send message to topic {MQTT_SUBSCRIBE_TOPIC}")
 
-# Register MQTT callbacks
+
+
+
 mqttc.on_connect = on_connect
-mqttc.on_message = on_message
-
-# Start MQTT client loop
 mqttc.loop_forever()
