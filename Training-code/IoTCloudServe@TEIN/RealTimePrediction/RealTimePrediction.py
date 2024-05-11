@@ -16,8 +16,8 @@ from influxdb_client.client.write_api import ASYNCHRONOUS
 import json
 
 # Load the trained model
-knn_model = joblib.load('knn_model.pkl')
-model_columns = joblib.load("knn_model_columns.pkl")
+knn_model = joblib.load('.\IoTCloudServe@TEIN\RealTimePrediction\knn_model.pkl')
+model_columns = joblib.load('.\IoTCloudServe@TEIN\RealTimePrediction\knn_model_columns.pkl')
 
 # Load environment variables from ".env"
 load_dotenv()
