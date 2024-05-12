@@ -67,23 +67,23 @@ def post_to_predict(data):
 def write_to_influxdb(data):
     # format data
     point = Point("sensor_data")\
-        .field("S1_Temp", data["S1_Temp"])\
-        .field("S2_Temp", data["S2_Temp"])\
-        .field("S3_Temp", data["S3_Temp"])\
-        .field("S4_Temp", data["S4_Temp"])\
-        .field("S1_Light", data["S1_Light"])\
-        .field("S2_Light", data["S2_Light"])\
-        .field("S3_Light", data["S3_Light"])\
-        .field("S4_Light", data["S4_Light"])\
-        .field("S1_Sound", data["S1_Sound"])\
-        .field("S2_Sound", data["S2_Sound"])\
-        .field("S3_Sound", data["S3_Sound"])\
-        .field("S4_Sound", data["S4_Sound"])\
-        .field("S5_CO2", data["S5_CO2"])\
-        .field("S5_CO2_Slope", data["S5_CO2_Slope"])\
-        .field("S6_PIR", data["S6_PIR"])\
-        .field("S7_PIR", data["S7_PIR"])\
-        .field("Room_Occupancy_Count", data["Room_Occupancy_Count"])
+        .field("humid_sht4x", data["humid_sht4x"])\
+        .field("pressure_bmp280", data["pressure_bmp280"])\
+        .field("temp_bmp280", data["temp_bmp280"])\
+        .field("temp_sht4x", data["temp_sht4x"])\
+        # .field("S1_Light", data["S1_Light"])\
+        # .field("S2_Light", data["S2_Light"])\
+        # .field("S3_Light", data["S3_Light"])\
+        # .field("S4_Light", data["S4_Light"])\
+        # .field("S1_Sound", data["S1_Sound"])\
+        # .field("S2_Sound", data["S2_Sound"])\
+        # .field("S3_Sound", data["S3_Sound"])\
+        # .field("S4_Sound", data["S4_Sound"])\
+        # .field("S5_CO2", data["S5_CO2"])\
+        # .field("S5_CO2_Slope", data["S5_CO2_Slope"])\
+        # .field("S6_PIR", data["S6_PIR"])\
+        # .field("S7_PIR", data["S7_PIR"])\
+        # .field("Room_Occupancy_Count", data["Room_Occupancy_Count"])
 
     write_api.write(BUCKET, os.environ.get('INFLUXDB_ORG'), point)
 
