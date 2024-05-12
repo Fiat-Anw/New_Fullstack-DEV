@@ -18,7 +18,8 @@ mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 mqttc.connect(MQTT_BROKER_URL)
 
 # Read data from "test_cases.csv"
-df = pd.read_csv('test_cases.csv')
+df = pd.read_csv('sensor_data.csv')
+print(df.head())
 
 # Iterate over each row in the DataFrame
 for start_idx in range(10):
