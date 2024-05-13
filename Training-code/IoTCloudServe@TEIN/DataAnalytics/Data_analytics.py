@@ -1,50 +1,42 @@
-try :
-    import pandas as pd
-    import numpy as np
-    import math
-    import matplotlib.pyplot as plt # Visualization
-    import matplotlib.dates as mdates # Formatting dates
-    import seaborn as sns # Visualization
-    from sklearn.preprocessing import MinMaxScaler
-    import torch
-    import torch.nn as nn
-    import torch.nn.functional as F
-    import torch.optim as optim
-    from torch.utils.data import Dataset, DataLoader
+#!pip install influxdb-client paho-mqtt
+import pandas as pd
+import numpy as np
+import math
+import matplotlib.pyplot as plt # Visualization
+from sklearn.preprocessing import MinMaxScaler
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
 
-    from influxdb_client import InfluxDBClient, Point, Dialect
-    from influxdb_client.client.write_api import ASYNCHRONOUS
-    import paho.mqtt.client as mqtt
-    import time
-    import json
-    import requests
-    import time
-    import pytz
-    import os
-    from datetime import datetime
-
-except ImportError :
-    #!pip install influxdb-client paho-mqtt
-    from influxdb_client import InfluxDBClient, Point, Dialect
-    from influxdb_client.client.write_api import ASYNCHRONOUS
-    import paho.mqtt.client as mqtt
-
+from influxdb_client import InfluxDBClient, Point, Dialect
+from influxdb_client.client.write_api import ASYNCHRONOUS
+import paho.mqtt.client as mqtt
+import time
+import time
+import pytz
+import os
+from datetime import datetime
+from dotenv import load_dotenv
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+load_dotenv()
+
 # InfluxDB configuration
-BUCKET = 'fullstack-influxdb' #  bucket is a named location where time series data is stored.
-url = 'https://iot-group2-service1.iotcloudserve.net/'
-token ='Dwj0HPIYScc1zvkB0zHpjxIVIssU_z_-unniio7sOcZl135FZ40ONj9ZX6jgiBWqkwpOQegRAL21Ix1z86SBJw=='
-org = 'Chulalongkorn'
+BUCKET = os.environ.get('INFLUXDB_BUCKET')
+url = str(os.environ.get('INFLUXDB_URL'))
+token = str(os.environ.get('INFLUXDB_TOKEN'))
+org = os.environ.get('INFLUXDB_ORG')
 
 
 def get_df_from_db():
 
     client = InfluxDBClient(
-        url= url,
-        token= token,
-        org= 'Chulalongkorn'
+        url = url,
+        token = token,
+        org = org
     )
 
     write_api = client.write_api()
@@ -243,10 +235,13 @@ def train_model(model, X_train, y_train, X_test, y_test):
             print(f'Epoch [{epoch + 1}/{num_epochs}] - Training Loss: {average_loss:.4f}, Test Loss: {average_test_loss:.4f}')
 
     x = np.linspace(1,num_epochs,num_epochs)
-    #plt.plot(x,train_hist,scalex=True, label="Training loss")
-    #plt.plot(x, test_hist, label="Test loss")
-    #plt.legend()
-    #plt.show()
+    plt.ioff()
+    plt.plot(x,train_hist,scalex=True, label="Training loss")
+    plt.plot(x, test_hist, label="Test loss")
+    plt.legend()
+    plt.show(block=False)
+    plt.pause(3)
+    plt.close()
 
 
 def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
@@ -278,7 +273,7 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
 
             # Update the historical_data sequence by removing the oldest value and adding the predicted value
             historical_data = np.roll(historical_data, shift=-1)
-            historical_data[-1] = predicted_value
+            historical_data[-1] = predicted_value[0]
 
     # Generate futute dates
     last_date = test_data.index[-1]
@@ -317,7 +312,6 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
             else:
                 new_x.append('')
                 count -= 1
-
     new_x[0] = ''
 
     y_test = [float(x) for x in test_data.temp_bmp280[-200:-30].tolist()][:128]
@@ -342,7 +336,6 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
             else:
                 l1.append('')
                 count -= 1
-
     l1[0] = ''
 
     l2 = []
@@ -365,7 +358,6 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
             else:
                 l2.append('')
                 count -= 1
-
     l2[0] = ''
 
     x_act_fore = l1+l2
@@ -374,18 +366,21 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
     y_act = [float(x) for x in original_cases.tolist()]
     y_fore = [float(x) for x in forecasted_cases.tolist()]
 
-    #plt.plot([i for i in range(len(y_test))], y_test, label='test data', color='b')
-    #plt.plot([i for i in range(40, len(y_act)+40)], y_act, label='actual values', color='green')
-    #plt.plot([i for i in range(40, len(y_fore)+40)], y_fore, label='forecasted values', color='red')
+    plt.ioff()
+    plt.plot([i for i in range(len(y_test))], y_test, label='test data', color='b')
+    plt.plot([i for i in range(40, len(y_act)+40)], y_act, label='actual values', color='green')
+    plt.plot([i for i in range(40, len(y_fore)+40)], y_fore, label='forecasted values', color='red')
 
-    #plt.xlabel('Time Step')
-    #plt.xticks([i for i in range(101)], x_act_fore)
-    #plt.ylabel('Value')
+    plt.xlabel('Time Step')
+    plt.xticks([i for i in range(101)], x_act_fore)
+    plt.ylabel('Value')
 
-    #plt.legend()
-    #plt.title('2024-05-12')
-    #plt.grid(True)
-    #plt.show()
+    plt.legend()
+    plt.title('2024-05-12')
+    plt.grid(True)
+    plt.show(block=False)
+    plt.pause(3)
+    plt.close()
 
     df_to_db = pd.DataFrame(y_fore, time_to_db)
     df_to_db.reset_index(inplace=True)
@@ -417,33 +412,33 @@ last_train_time = time.time()
 while True :
 
     df = get_df_from_db()
-    print("*****The queried dataframe is ready*****")
+    print("The queried dataframe is ready")
 
     df = format_df(df)
-    print("*****Data is formatted*****")
+    print("Data is formatted")
 
     train_data, test_data, X_train, y_train, X_test, y_test, scaler = prepare_data(df)
-    print("*****Data is ready*****")
+    print("Data is ready")
 
     model_path = "model.pth"
 
     model = create_model()
     if os.path.exists(model_path):
         model.load_state_dict(torch.load(model_path))
-        print("*****Loaded the existing model weights*****")
+        print("Loaded the existing model weights")
     else:
-        print("*****Created a new model*****")
+        print("Created a new model")
 
     predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler)
-    print("*****Finished prediction*****")
+    print("Finished prediction")
     time.sleep(6)
 
     current_time = time.time()
     if current_time - last_train_time >= 60:
 
         train_model(model, X_train, y_train, X_test, y_test)
-        print("*****Finished training*****")
+        print("Finished training")
 
         torch.save(model.state_dict(), model_path)
-        print("*****Saved the model weights*****")
+        print("Saved the model weights")
         last_train_time = current_time
