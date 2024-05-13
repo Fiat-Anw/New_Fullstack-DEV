@@ -1,39 +1,31 @@
-try :
-    import pandas as pd
-    import numpy as np
-    import math
-    import matplotlib.pyplot as plt # Visualization
-    import matplotlib.dates as mdates # Formatting dates
-    import seaborn as sns # Visualization
-    from sklearn.preprocessing import MinMaxScaler
-    import torch
-    import torch.nn as nn
-    import torch.nn.functional as F
-    import torch.optim as optim
-    from torch.utils.data import Dataset, DataLoader
+import pandas as pd
+import numpy as np
+import math
+import matplotlib.pyplot as plt # Visualization
+import matplotlib.dates as mdates # Formatting dates
+import seaborn as sns # Visualization
+from sklearn.preprocessing import MinMaxScaler
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torch.optim as optim
+from torch.utils.data import Dataset, DataLoader
 
-    from influxdb_client import InfluxDBClient, Point, Dialect
-    from influxdb_client.client.write_api import ASYNCHRONOUS
-    import paho.mqtt.client as mqtt
-    import time
-    import json
-    import requests
-    import time
-    import pytz
-    import os
-    from datetime import datetime
+import time
+import pytz
+import os
+from dotenv import load_dotenv
+from datetime import datetime
+from influxdb_client import InfluxDBClient, Point, Dialect
+from influxdb_client.client.write_api import ASYNCHRONOUS
 
-except ImportError :
-    #!pip install influxdb-client paho-mqtt
-    from influxdb_client import InfluxDBClient, Point, Dialect
-    from influxdb_client.client.write_api import ASYNCHRONOUS
-    import paho.mqtt.client as mqtt
-
+# Load environment variables from ".env"
+load_dotenv()
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 # InfluxDB configuration
-BUCKET = 'fullstack-influxdb' #  bucket is a named location where time series data is stored.
+BUCKET = os.environ.get('INFLUXDB_BUCKET') #  bucket is a named location where time series data is stored.
 url = 'https://iot-group2-service1.iotcloudserve.net/'
 token ='Dwj0HPIYScc1zvkB0zHpjxIVIssU_z_-unniio7sOcZl135FZ40ONj9ZX6jgiBWqkwpOQegRAL21Ix1z86SBJw=='
 org = 'Chulalongkorn'
@@ -42,9 +34,9 @@ org = 'Chulalongkorn'
 def get_df_from_db():
 
     client = InfluxDBClient(
-        url= url,
-        token= token,
-        org= 'Chulalongkorn'
+        url=str(os.environ.get('INFLUXDB_URL')),
+        token=str(os.environ.get('INFLUXDB_TOKEN')),
+        org=os.environ.get('INFLUXDB_ORG')
     )
 
     write_api = client.write_api()
@@ -278,7 +270,7 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
 
             # Update the historical_data sequence by removing the oldest value and adding the predicted value
             historical_data = np.roll(historical_data, shift=-1)
-            historical_data[-1] = predicted_value
+            historical_data[-1] = predicted_value[0]
 
     # Generate futute dates
     last_date = test_data.index[-1]
@@ -393,9 +385,9 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
     df_to_db['time'] = df_to_db['time'].apply(lambda x: datetime.strptime(x, "%Y/%m/%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%S.%fZ") if isinstance(x, str) else x.strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
 
     client = InfluxDBClient(
-        url= url,
-        token= token,
-        org= 'Chulalongkorn'
+        url=str(os.environ.get('INFLUXDB_URL')),
+        token=str(os.environ.get('INFLUXDB_TOKEN')),
+        org=os.environ.get('INFLUXDB_ORG')
     )
 
     write_api = client.write_api()
