@@ -399,7 +399,7 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
 
 
         point = Point("prediction_data")\
-            .field("try8", row['val'])
+            .field("Temperature", row['val'])
         write_api.write(BUCKET, org, point)
 
     print("Finished writing this data")
