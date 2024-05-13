@@ -20,10 +20,6 @@ import pandas as pd
 load_dotenv()
 
 # InfluxDB config
-BUCKET = 'fullstack-influxdb' #  bucket is a named location where time series data is stored.
-# url = 'https://iot-group2-service1.iotcloudserve.net/'
-# token ='Dwj0HPIYScc1zvkB0zHpjxIVIssU_z_-unniio7sOcZl135FZ40ONj9ZX6jgiBWqkwpOQegRAL21Ix1z86SBJw=='
-# org = 'Chulalongkorn'
 BUCKET = os.environ.get('INFLUXDB_BUCKET')
 url=str(os.environ.get('INFLUXDB_URL'))
 token=str(os.environ.get('INFLUXDB_TOKEN'))
@@ -55,9 +51,9 @@ def on_connect(client, userdata, flags, rc, properties):
 
 # def extract_data():
 query = 'from(bucket:"fullstack-influxdb")\
-|> range(start: -12h)\
+|> range(start: -15m)\
 |> filter(fn:(r) => r._measurement == "prediction_data")\
-|> filter(fn:(r) => r._field == "try8")'
+|> filter(fn:(r) => r._field == "Temperature")'
 
 while True:
     csv_result = query_api.query_csv(query,
