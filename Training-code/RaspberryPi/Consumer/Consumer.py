@@ -28,7 +28,7 @@ write_api = client.write_api()
  
 # MQTT broker config
 MQTT_BROKER_URL = os.environ.get('MQTT_URL')
-MQTT_PUBLISH_TOPIC = "@msg/data"
+MQTT_PUBLISH_TOPIC = "@msg/sensor2broker"
 print("connecting to MQTT Broker", MQTT_BROKER_URL)
 mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 mqttc.connect(MQTT_BROKER_URL,1883)
