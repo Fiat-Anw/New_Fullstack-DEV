@@ -388,9 +388,9 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
     df_to_db['time'] = df_to_db['time'].apply(lambda x: datetime.strptime(x, "%Y/%m/%d %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%S.%fZ") if isinstance(x, str) else x.strftime("%Y-%m-%dT%H:%M:%S.%fZ"))
 
     client = InfluxDBClient(
-        url= url,
-        token= token,
-        org= 'Chulalongkorn'
+        url=str(os.environ.get('INFLUXDB_URL')),
+        token=str(os.environ.get('INFLUXDB_TOKEN')),
+        org=os.environ.get('INFLUXDB_ORG')
     )
 
     write_api = client.write_api()
