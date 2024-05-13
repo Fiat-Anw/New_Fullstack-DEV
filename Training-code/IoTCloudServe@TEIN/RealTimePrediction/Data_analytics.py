@@ -24,7 +24,7 @@ try :
     from datetime import datetime
 
 except ImportError :
-    !pip install influxdb-client paho-mqtt
+    #!pip install influxdb-client paho-mqtt
     from influxdb_client import InfluxDBClient, Point, Dialect
     from influxdb_client.client.write_api import ASYNCHRONOUS
     import paho.mqtt.client as mqtt
@@ -447,5 +447,3 @@ while True :
         torch.save(model.state_dict(), model_path)
         print("*****Saved the model weights*****")
         last_train_time = current_time
-
-
