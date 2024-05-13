@@ -243,10 +243,10 @@ def train_model(model, X_train, y_train, X_test, y_test):
             print(f'Epoch [{epoch + 1}/{num_epochs}] - Training Loss: {average_loss:.4f}, Test Loss: {average_test_loss:.4f}')
 
     x = np.linspace(1,num_epochs,num_epochs)
-    plt.plot(x,train_hist,scalex=True, label="Training loss")
-    plt.plot(x, test_hist, label="Test loss")
-    plt.legend()
-    plt.show()
+    #plt.plot(x,train_hist,scalex=True, label="Training loss")
+    #plt.plot(x, test_hist, label="Test loss")
+    #plt.legend()
+    #plt.show()
 
 
 def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
@@ -374,18 +374,18 @@ def predict(device, model, test_data, X_train, y_train, X_test, y_test, scaler):
     y_act = [float(x) for x in original_cases.tolist()]
     y_fore = [float(x) for x in forecasted_cases.tolist()]
 
-    plt.plot([i for i in range(len(y_test))], y_test, label='test data', color='b')
-    plt.plot([i for i in range(40, len(y_act)+40)], y_act, label='actual values', color='green')
-    plt.plot([i for i in range(40, len(y_fore)+40)], y_fore, label='forecasted values', color='red')
+    #plt.plot([i for i in range(len(y_test))], y_test, label='test data', color='b')
+    #plt.plot([i for i in range(40, len(y_act)+40)], y_act, label='actual values', color='green')
+    #plt.plot([i for i in range(40, len(y_fore)+40)], y_fore, label='forecasted values', color='red')
 
-    plt.xlabel('Time Step')
-    plt.xticks([i for i in range(101)], x_act_fore)
-    plt.ylabel('Value')
+    #plt.xlabel('Time Step')
+    #plt.xticks([i for i in range(101)], x_act_fore)
+    #plt.ylabel('Value')
 
-    plt.legend()
-    plt.title('2024-05-12')
-    plt.grid(True)
-    plt.show()
+    #plt.legend()
+    #plt.title('2024-05-12')
+    #plt.grid(True)
+    #plt.show()
 
     df_to_db = pd.DataFrame(y_fore, time_to_db)
     df_to_db.reset_index(inplace=True)
