@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <WiFi.h>
 #include <Wire.h>
 #include "PubSubClient.h"
@@ -7,13 +8,16 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-//for netpie
+//Topic การเขียนข้อมูล Shadow
 //#define UPDATEDATA   "@shadow/data/update"
-
 #define UPDATEDATA   "@msg/sensor2broker"
-// WiFi Connection     
-const char* ssid      = "ultra_wifi";      
-const char* password  = "12345678";     
+//กำหนดข้อมูลเชื่อมต่อ WiFi
+//const char* ssid      = "Sekai";      //ต้องแก้ไข
+//const char* password  = "12345678";      //ต้องแก้ไข
+
+const char* ssid      = "ultra_wifi";      //ต้องแก้ไข
+const char* password  = "12345678";      //ต้องแก้ไข
+
 
 const char *ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = 3600*7;  // Your timezone offset in seconds thailand gmt +7hours = 3600*7 seconds
@@ -32,7 +36,7 @@ const char* mqtt_server = "172.20.10.3";
 const int mqtt_port = 1883;
 const char* token = "NULL";
 const char* secret = "NULL";
-const char* client_id = "ESP32GROUP2";
+const char* client_id = "ESP32ULTRA";
 
 Adafruit_SHT4x sht4x = Adafruit_SHT4x();
 Adafruit_BMP280 bmp280;
@@ -62,7 +66,7 @@ void reconnect() {
   while (!client.connected()) {
     Serial.println(F("Attempting MQTT connection..."));
     //if (client.connect(client_id, token, secret)) {
-    if (client.connect("ESP32GROUP2")) {
+    if (client.connect("ESP32ULTRA")) {
       Serial.println(F("connected"));
       // Subscribe
       client.subscribe("@msg/cc2broker");
@@ -126,6 +130,7 @@ void sendSensorData(void *parameter) {
     float temp_bmp280 = bmp280.readTemperature();
     float pressure_bmp280 = bmp280.readPressure() / 100.0F; // Convert Pa to hPa
 
+
     char json_body[200];
     /*
     for netpie
@@ -144,12 +149,14 @@ void sendSensorData(void *parameter) {
     sprintf(json_body, json_tmpl, temp_sht4x, humid_sht4x, temp_bmp280, pressure_bmp280);
 
     //Serial.println(json_body);
-
+    //Serial.print(F("Message arrived ["));
     Serial.print(F("Read_SensorData ["));
     Serial.print("ReadTempBMP280");
+    //Serial.print("[@msg/cc2broker ");
     Serial.print(F("] temp_bmp280: "));
     Serial.print(temp_bmp280);
     Serial.println();
+    //client.publish(UPDATEDATA, json_body);
         
     // Queue JSON message to the back of the FIFO queue
     xQueueSendToBack(sensorDataQueue, &json_body, portMAX_DELAY);
