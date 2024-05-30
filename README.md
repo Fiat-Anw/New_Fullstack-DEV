@@ -8,10 +8,6 @@ Class Instructors:
 
 Department of Electrical Engineering, Faculty of Engineering, Chulalongkorn University, Thailand
 
-This repository was created by Patchapong Kulthumrongkul 6670165121@student.chula.ac.th
-Wireless Network and Future Internet Research Unit, Department of Electrical
-Engineering, Faculty of Engineering, Chulalongkorn University, Bangkok Thailand
-
 ---
 
 ## System Architecture
