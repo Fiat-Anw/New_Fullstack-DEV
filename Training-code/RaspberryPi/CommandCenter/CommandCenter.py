@@ -7,13 +7,10 @@ read from influx and publish to mqtt broker
 import os
 from dotenv import load_dotenv
 from influxdb_client import InfluxDBClient, Point,  Dialect
-from influxdb_client import InfluxDBClient, Point,  Dialect
 from influxdb_client.client.write_api import ASYNCHRONOUS
 import paho.mqtt.client as mqtt
 import pytz
-import pytz
 import time
-import pandas as pd
 import pandas as pd
 
 # Load environment variables from ".env"
